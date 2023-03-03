@@ -1,14 +1,14 @@
 """
 Author: Jack, https://github.com/jack-milligan
-This script combines multiple Excel spreadsheets of the same structure (same columns, data types, etc.) into a
+This script combines multiple Excel or csv spreadsheets of the same structure (same columns, data types, etc.) into a
 single Excel file. The user is prompted to enter the number of spreadsheets to combine and the file paths (local) for each
-spreadsheet. The script checks that each input is a valid path of an Excel file with the extension ".xlsx". Once all the
+spreadsheet. The script checks that each input is a valid path of an Excel or csv file with the extension ".xlsx", ."xls", ".xlsm", or ".csv". Once all the
 spreadsheets have been read into separate pandas dataframes, the dataframes are concatenated into a single dataframe.
 The resulting dataframe is then exported to an Excel file named "combined_excels.xlsx" in the same directory as the
 script file.
 
 Functions:
-- is_excel_file(filename): checks if a file is an Excel file with the extension ".xlsx".
+- is_excel_file(filename): checks if a file is an Excel or csv file with the extension ".xlsx", ".xls", ".xlsm", or ".csv".
 
 Usage:
 - Run the script in a Python environment (e.g., Anaconda, Jupyter Notebook, etc.).
@@ -26,13 +26,14 @@ def is_excel_file(filename):
         filename: A file path to check.
 
     Returns:
-        bool: True if the file is an Excel file (i.e., has the extension ".xlsx"),
+        bool: True if the file is an Excel or csv file (i.e., has the extension ".xlsx" or ".csv"),
         False otherwise.
 
     Raises:
         None
     """
-    if filename.endswith('.xlsx'):
+    if filename.endswith('.xlsx') or filename.endswith('.csv') \
+            or filename.endswith('.xls') or filename.endswith('.xlsm'):
         return True
     else:
         return False
