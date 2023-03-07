@@ -1,22 +1,47 @@
 """
+
 Author: Jack, https://github.com/jack-milligan
-This script combines multiple Excel or csv spreadsheets of the same structure (same columns, data types, etc.) into a
-single Excel file. The user is prompted to enter the number of spreadsheets to combine and the file paths (local) for each
-spreadsheet. The script checks that each input is a valid path of an Excel or csv file with the extension ".xlsx", ."xls", ".xlsm", or ".csv". Once all the
-spreadsheets have been read into separate pandas dataframes, the dataframes are concatenated into a single dataframe.
-The resulting dataframe is then exported to an Excel file named "combined_excels.xlsx" in the same directory as the
-script file.
+
+This Python program combines multiple Excel files into a single file using a GUI.
+The program includes several functions that perform different tasks such as checking if a file is an Excel file,
+getting a list of file paths for the files to be combined, reading each file into a separate pandas dataframe,
+saving the combined dataframe to an Excel file, and combining multiple Excel files into a single file.
 
 Functions:
-- is_excel_file(filename): checks if a file is an Excel or csv file with the extension ".xlsx", ".xls", ".xlsm", or ".csv".
+----------
+is_excel_file(filename):
+    Check if a file is an Excel file.
 
-Usage:
-- Run the script in a Python environment (e.g., Anaconda, Jupyter Notebook, etc.).
-- Follow the prompts to enter the number of Excel spreadsheets to combine and the file paths for each spreadsheet.
-- The resulting dataframe will be saved to a file named "combined_excels.xlsx" in the same directory as the script.
+get_dataframe_path_list():
+    Prompts the user to select the number of files to combine and allows the user to select the files to combine.
+    Only files with the extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted.
+
+read_dataframes(dataframe_path_list):
+    Reads each file in the provided list of file paths into a separate pandas dataframe.
+
+save_dataframe_to_excel(combined_df):
+    Prompts the user to select an output file path and writes the provided pandas dataframe to an Excel file.
+
+combine_files():
+    Combines multiple Excel files into a single file.
+    Prompts the user to select the number of files to combine and allows the user to select the files to combine.
+    Only files with the extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted.
+    After selecting the files, the function reads each file into a separate pandas dataframe,
+    and concatenates all dataframes into a single dataframe.
+    The user is then prompted to select an output file path,
+    and the combined dataframe is written to an Excel file at that location.
+
+Dependencies:
+- os
+- pandas
+- tkinter
+- filedialog
+- messagebox
 """
 import os
 import pandas as pd
+import tkinter as tk
+from tkinter import filedialog,messagebox
 
 
 def is_excel_file(filename):
@@ -37,39 +62,109 @@ def is_excel_file(filename):
         return True
     else:
         return False
+def get_dataframe_path_list():
+    """Prompts the user to select the number of files to combine, and then opens a file dialog
+    for each file, allowing the user to select the files to combine. Only files with the
+    extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted.
+
+    Returns:
+        list: A list of file paths for the files to be combined.
+    """
+    dataframe_path_list = []
+
+    # get the number of files to combine from the user
+    number_files = int(num_files_entry.get())
+
+    # prompt the user to select the files to combine
+    for i in range(number_files):
+        while True:
+            # use a file dialog to get the path of each file
+            file_path = filedialog.askopenfilename()
+            if is_excel_file(file_path) and os.path.isfile(file_path):
+                dataframe_path_list.append(file_path)
+                break
+            else:
+                tk.messagebox.showerror("Error", "You did not select a valid Excel file.")
+                continue
+
+    return dataframe_path_list
 
 
-while True:
-    # ensuring valid input
-    try:
-        numberFiles = int(input('How many excel spreadsheets of same structure (same columns and data types) would '
-                                'you like to combine?:'))
-        break
-    except ValueError:
-        print('Invalid input. Please enter a number.')
+def read_dataframes(dataframe_path_list):
+    """Reads each file in the provided list of file paths into a separate pandas dataframe.
 
-dataframePathList = list()
+    Args:
+        dataframe_path_list (list): A list of file paths for the files to be combined.
 
-for i in range(numberFiles):
-    # ensuring valid input
-    while True:
-        userInput = input(f'Enter path of spreadsheet {i + 1}:')
-        if is_excel_file(userInput) and os.path.isfile(userInput):
-            dataframePathList.append(userInput)
-            break
-        else:
-            print('You did not enter the path of an excel file in .xlsx format, please try again.')
+    Returns:
+        list: A list of pandas dataframes, each containing the data from one of the input files.
+    """
+    dataframes = []
 
-# list to house each dataframe
-dataframes = list()
+    for file in dataframe_path_list:
+        df = pd.read_excel(file)
+        dataframes.append(df)
 
-# loop through each file and read it into a dataframe
-for file in dataframePathList:
-    df = pd.read_excel(file)
-    dataframes.append(df)
+    return dataframes
 
-# concatenate all the dataframes into a single dataframe
-combined_df = pd.concat(dataframes, ignore_index=True)
 
-# export the dataframe to an Excel document
-combined_df.to_excel('combined_excels.xlsx', index=False)
+def save_dataframe_to_excel(combined_df):
+    """Prompts the user to select an output file path, and writes the provided pandas dataframe
+    to an Excel file at that location.
+
+    Args:
+        combined_df (pandas.DataFrame): The combined pandas dataframe to be written to an Excel file.
+
+    Returns:
+        None
+    """
+    # use a file dialog to select the output file path
+    output_path = filedialog.asksaveasfilename(defaultextension=".xlsx")
+
+    # export the dataframe to an Excel document
+    combined_df.to_excel(output_path, index=False)
+
+def combine_files():
+    """Combines multiple Excel files into a single file.
+
+    Prompts the user to select the number of files to combine, and then opens a file dialog
+    for each file, allowing the user to select the files to combine. Only files with the
+    extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted. After selecting the files,
+    the function reads each file into a separate pandas dataframe, and concatenates all
+    dataframes into a single dataframe. The user is then prompted to select an output file
+    path, and the combined dataframe is written to an Excel file at that location.
+
+    Returns:
+        None
+    """
+
+    # get the list of files to combine
+    dataframe_path_list = get_dataframe_path_list()
+
+    # read each file into a separate pandas dataframe
+    dataframes = read_dataframes(dataframe_path_list)
+
+    # concatenate all the dataframes into a single dataframe
+    combined_df = pd.concat(dataframes, ignore_index=True)
+
+    # get the output file path from the user and write the combined dataframe to an Excel file
+    save_dataframe_to_excel(combined_df)
+
+    tk.messagebox.showinfo("Success", "The Excel files have been combined.")
+
+# create the GUI window
+root = tk.Tk()
+root.title("Combine Excel Spreadsheets")
+
+# create a label and entry widget for the number of files
+num_files_label = tk.Label(root, text="Number of Excel Spreadsheets to Combine:")
+num_files_label.pack()
+num_files_entry = tk.Entry(root)
+num_files_entry.pack()
+
+# create a button to initiate the file selection process
+select_files_button = tk.Button(root, text="Select Files", command=combine_files)
+select_files_button.pack()
+
+# start the GUI
+root.mainloop()
