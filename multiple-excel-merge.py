@@ -12,6 +12,9 @@ Functions:
 is_excel_file(filename):
     Check if a file is an Excel file.
 
+is_csv_file(filename):
+    Check if a file is a csv file.
+
 get_dataframe_path_list():
     Prompts the user to select the number of files to combine and allows the user to select the files to combine.
     Only files with the extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted.
@@ -45,7 +48,8 @@ from tkinter import filedialog,messagebox
 
 
 def is_excel_file(filename):
-    """Check if a file is an Excel file.
+    """
+    Check if a file is an Excel file.
 
     Args:
         filename: A file path to check.
@@ -62,8 +66,31 @@ def is_excel_file(filename):
         return True
     else:
         return False
+
+
+def is_csv_file(filename):
+    """
+    Check if a file is a csv file.
+
+    Args:
+        filename: A file path to check.
+
+    Returns:
+        bool: True if the file is a csv file (ends with ".csv"),
+        False otherwise.
+
+    Raises:
+        None
+    """
+    if filename.endswith('.csv'):
+        return True
+    else:
+        return False
+
+
 def get_dataframe_path_list():
-    """Prompts the user to select the number of files to combine, and then opens a file dialog
+    """
+    Prompts the user to select the number of files to combine, and then opens a file dialog
     for each file, allowing the user to select the files to combine. Only files with the
     extension ".xlsx", ".xls", ".xlsm", or ".csv" are accepted.
 
@@ -91,7 +118,8 @@ def get_dataframe_path_list():
 
 
 def read_dataframes(dataframe_path_list):
-    """Reads each file in the provided list of file paths into a separate pandas dataframe.
+    """
+    Reads each file in the provided list of file paths into a separate pandas dataframe.
 
     Args:
         dataframe_path_list (list): A list of file paths for the files to be combined.
@@ -102,14 +130,18 @@ def read_dataframes(dataframe_path_list):
     dataframes = []
 
     for file in dataframe_path_list:
-        df = pd.read_excel(file)
+        if is_csv_file(file):
+            df = pd.read_csv(file)
+        else:
+            df = pd.read_excel(file)
         dataframes.append(df)
 
     return dataframes
 
 
 def save_dataframe_to_excel(combined_df):
-    """Prompts the user to select an output file path, and writes the provided pandas dataframe
+    """
+    Prompts the user to select an output file path, and writes the provided pandas dataframe
     to an Excel file at that location.
 
     Args:
@@ -125,7 +157,8 @@ def save_dataframe_to_excel(combined_df):
     combined_df.to_excel(output_path, index=False)
 
 def combine_files():
-    """Combines multiple Excel files into a single file.
+    """
+    Combines multiple Excel files into a single file.
 
     Prompts the user to select the number of files to combine, and then opens a file dialog
     for each file, allowing the user to select the files to combine. Only files with the
